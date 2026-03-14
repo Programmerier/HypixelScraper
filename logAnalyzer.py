@@ -1,7 +1,7 @@
 from pathlib import Path
 
 
-FOLDER_DICT = Path(r"C:\Users\Hans\Desktop\lunarFiles")
+FOLDER_DICT = Path(r"C:\Users\*\Desktop\lunarFiles")
 
 def getLogText(logPath) -> str:
     with open(logPath, "r") as f:
