@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from playwright.sync_api import sync_playwright, TimeoutError as PWTimeout
 
 # ─────────────────────────────────────────────
-HYPIXEL_API_KEY = "c2574440-9fda-4420-916b-96790289503e"
+HYPIXEL_API_KEY = "1323f537-aa2a-4571-a31e-32539c431c8d"
 # ─────────────────────────────────────────────
 
 PLATFORMS = {

@@ -89,7 +89,7 @@ def main():
         
     voidKillerDict = extractVoidKills(logDictionary)
     voidDeathDict = extractVoidDeaths(logDictionary)
-
+    print("-*60")
     print("KillerListe: \n")
     print(voidKillerDict)
     print("-"*60)
