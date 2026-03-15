@@ -20,7 +20,7 @@ def extractVoidKills(incomedict) -> dict[str,int]:
     voidDict: dict[str, int] = {}
 
     for log in incomedict:
-        for rawLine in incomedict[log].splitlines():
+        for rawLine in incomedict[log][0].splitlines():
             if "void" in rawLine and ' by ' in rawLine:
                 splittext = rawLine.split() 
                 index_was = splittext.index("by")
@@ -37,7 +37,7 @@ def extractVoidDeaths(incomedict) -> dict[str,int]:
     voidDict: dict[str, int] = {}
 
     for log in incomedict:
-        for rawLine in incomedict[log].splitlines():
+        for rawLine in incomedict[log][0].splitlines():
             if "void" in rawLine and ' by ' in rawLine:
                 splittext = rawLine.split() 
                 index_was = splittext.index("was")
@@ -72,14 +72,15 @@ def bedwarsSessionStart(log, logPath) -> dict:  # ← logPath neu
     starttime_object = None
     lines = log.splitlines()
     for i, line in enumerate(lines): 
-        if '"gametype":"BEDWARS","mode":' in line:
+        if '"gametype":"BEDWARS","mode":' in line and "BEDWARS_PRACTICE" not in line:
             sessionCount += 1
             starttime_object = datetime.strptime(line[1:9], '%H:%M:%S')
             inSession = True
         elif '"gametype":"BEDWARS","lobbyname":' in line:
             inSession = False
             endtime_object = datetime.strptime(line[1:9], '%H:%M:%S')
-            sessionDict[(logPath, sessionCount)] = current_session_chat, starttime_object, endtime_object  
+            if len(current_session_chat) > 0: 
+                sessionDict[(logPath, sessionCount)] = current_session_chat, starttime_object, endtime_object  
             current_session_chat = ""
         if inSession:
             current_session_chat += line + "\n"
@@ -119,17 +120,36 @@ def main():
 
        
     
-    #TestZwecke
-    #sessionDict = bedwarsSessionStart(logDictionary[Path(r"C:\Users\Hans\Desktop\lunarFiles\latest.log")])
-    sessionDict: dict[int, object] = {}  
 
+    sessionDict: dict = {}
     for log in logDictionary:
-        result = bedwarsSessionStart(logDictionary[log], log)  # ← log (Path) mitgeben
+        result = bedwarsSessionStart(logDictionary[log], log)
         if result:
             sessionDict.update(result)
 
-        print(len(sessionDict), log)
 
+    for session_key, (chat, starttime, endtime) in sessionDict.items():
+        single_session = {session_key: (chat, starttime, endtime)}
+        
+        kills = extractVoidKills(single_session)
+        deaths = extractVoidDeaths(single_session)
+        sync = get_synced_dict(kills, deaths)
+
+        session_player_dict = {}
+        for spieler in sync:
+            kd = get_kd(spieler, kills, deaths)
+            session_player_dict[spieler] = kd, kills.get(spieler, 0), deaths.get(spieler, 0)
+
+        if starttime:  # ← nur ausgeben wenn Startzeit bekannt
+            print(f"\n--- Session {session_key} | {starttime.time()} - {endtime.time()} ---")
+        else:
+            print(f"\n--- Session {session_key} | (Startzeit unbekannt) - {endtime.time()} ---")
+        print(session_player_dict)
+        if session_player_dict:
+            best_player = max(session_player_dict, key=lambda p: session_player_dict[p][0])
+            best_kd = session_player_dict[best_player][0]
+            print(f"Bester Spieler: {best_player} mit KD {best_kd}")
+        
 
 
 if __name__ == "__main__":
