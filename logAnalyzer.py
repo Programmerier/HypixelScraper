@@ -140,7 +140,7 @@ def main():
             kd = get_kd(spieler, kills, deaths)
             session_player_dict[spieler] = kd, kills.get(spieler, 0), deaths.get(spieler, 0)
 
-        if starttime:  # ← nur ausgeben wenn Startzeit bekannt
+        if starttime: 
             print(f"\n--- Session {session_key} | {starttime.time()} - {endtime.time()} ---")
         else:
             print(f"\n--- Session {session_key} | (Startzeit unbekannt) - {endtime.time()} ---")
@@ -150,6 +150,10 @@ def main():
             best_kd = session_player_dict[best_player][0]
             print(f"Bester Spieler: {best_player} mit KD {best_kd}")
         
+
+
+    
+
 
 
 if __name__ == "__main__":
